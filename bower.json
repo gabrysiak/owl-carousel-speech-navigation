@@ -1,0 +1,9 @@
+{
+    "name": "owl-carousel-speech-navigation",
+    "version": "0.1",
+    "dependencies": {
+        "jquery": "1.x",
+	"owl.carousel": "latest",
+        "bootstrap": "3.1.1"
+    }
+}

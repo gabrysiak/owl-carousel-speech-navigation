@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>L33T Title</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="libs/owl-carousel/owl.carousel.css">
+        <link rel="stylesheet" href="libs/owl-carousel/owl.theme.css">
+        <link rel="stylesheet" href="libs/owl-carousel/owl.transitions.css">
+    </head>
+    <body>
+        <div id="error"></div>
+        <div class="owl-carousel">
+            <div class="item"><img src="libs/owl-carousel/assets/owl1.jpg" alt=""></div>
+            <div class="item"><img src="libs/owl-carousel/assets/owl2.jpg" alt=""></div>
+            <div class="item"><img src="libs/owl-carousel/assets/owl3.jpg" alt=""></div>
+            <div class="item"><img src="libs/owl-carousel/assets/owl4.jpg" alt=""></div>
+            <div class="item"><img src="libs/owl-carousel/assets/owl5.jpg" alt=""></div>
+            <div class="item"><img src="libs/owl-carousel/assets/owl6.jpg" alt=""></div>
+            <div class="item"><img src="libs/owl-carousel/assets/owl7.jpg" alt=""></div>
+            <div class="item"><img src="libs/owl-carousel/assets/owl8.jpg" alt=""></div>
+        </div>
+        <script  src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+        <script  src="libs/owl-carousel/owl.carousel.min.js"></script>
+        <script>
+            'use strict';
+
+            var owl = $('.owl-carousel'),
+                errorDiv = $('#error');
+
+            owl.owlCarousel({
+                loop:true,
+                margin:10,
+                nav:true,
+                responsive:{
+                    0:{
+                        items:1
+                    },
+                    600:{
+                        items:3
+                    },
+                    1000:{
+                        items:5
+                    }
+                }
+            });
+
+            if (!('webkitSpeechRecognition' in window)) {
+                upgrade();
+            } else {
+
+                // get browser agent
+                var ischrome = navigator.userAgent.match(/chrome/i);
+
+                // only proceed if we are on chrome
+                if(ischrome) {
+                    var processingCommand = false,
+                        recognizer = new webkitSpeechRecognition();
+
+                    var voiceMsg = function(command) {
+                        var tomSpeak = new SpeechSynthesisUtterance('I didn\'t understand your last request. Available commands are next and back. Please try again.');
+                        tomSpeak.lang = 'en-US';
+                        tomSpeak.pitch = 1;
+                        tomSpeak.rate = 1;
+                        tomSpeak.voice = voices[10];
+                        tomSpeak.voiceURI = 'native';
+                        tomSpeak.volume = 1;
+                        speechSynthesis.speak(tomSpeak);
+                        
+                        // listen to onend event
+                        // tomSpeak.onend = function(e) {
+                            
+                        // };
+                    };
+
+                    var slideLoop = function(command, commandType, callback) {
+
+                        // remove leading and ending spaces from command
+                        command = command.trim();
+
+                        if (!processingCommand && commandType !== 'voice') return;
+
+                        if (typeof(command) === 'undefined') return;
+
+                        switch(command) {
+                            // voice sometimes adds space before words, so check or trim
+                            case 'next':
+                            case ' next':
+                                processingCommand = true;
+                                owl.trigger('next.owl.carousel');
+                                break;
+
+                            case 'back':
+                            case ' back':
+                                processingCommand = true;
+                                owl.trigger('prev.owl.carousel');
+                                break;
+
+                            default:
+                                processingCommand = true;
+                                voiceMsg(command);
+                        }
+                        if (callback) callback();
+                    };
+
+                    recognizer.continuous = true;
+
+                    recognizer.lang = ['English', ['en-US', 'United States']];
+
+                    // We return final strings which take longer than non-final but are more accurate
+                    recognizer.interimResults = true;
+
+                    // when we get a result, process it
+                    recognizer.onresult = function(e) {
+                        // set variable
+                        var interim_transcript = '';
+                        if (e.results.length) {
+                            for (var i = event.resultIndex; i < event.results.length; i++) {
+                                interim_transcript = event.results[i][0].transcript;
+
+                                // remove spaces from results 
+                                interim_transcript = interim_transcript.trim();
+                                // if the slide isn't moving, allow commands to be sent down
+                                if (!processingCommand) {
+                                    slideLoop(interim_transcript, 'voice', function() {
+                                        // set small delay before accepting next command
+                                        setTimeout(function(){
+                                            processingCommand = false;
+                                        }, 200);
+                                    });
+                                }
+                            }
+                        }
+
+                        console.log(e);
+                    };
+
+                    // on error event, log our error
+                    recognizer.onerror = function(e) {
+                        console.log(e.error);
+                    };
+
+                    recognizer.start();
+                }
+            }
+            </script>
+    </body>
+</html>
